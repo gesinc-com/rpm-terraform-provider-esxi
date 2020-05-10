@@ -1,0 +1,85 @@
+default:
+  tags: 
+    - rpm-build
+
+variables:
+  extrachecks: go
+  extrapkgs: /usr/bin/go
+  GIT_STRATEGY: clone
+
+stages:
+  - prep
+  - source
+  - srpm
+  - rpm
+  - publish
+
+macros:
+  stage: prep
+  script:
+    - | 
+      cat <<-EOF> ${HOME}/.rpmmacros
+      %dis            el
+      %tro            %(rpm -qf --qf "%%{version}" /etc/issue | sed 's/\\.//g' )
+      %_topdir        %(pwd)
+
+      #  (S)RPMs go to the staging area
+      %__rpmdir       %{_topdir}/RPMS%{?apt:.%{apt}}
+      %__srcrpmdir    %{_topdir}/SRPMS%{?apt:.%{apt}}
+      
+      #  Builds occur in a standard space
+      %__builddir     %{_topdir}/BUILD
+      
+      #  Source and Spec under cvs area
+      %__specdir      %{_topdir}
+      %__sourcedir    %{_topdir}
+      
+      #  Make the dirs
+      %_rpmdir        %(%__mkdir_p %{__rpmdir}   )%{__rpmdir}
+      %_srcrpmdir     %(%__mkdir_p %{__srcrpmdir})%{__srcrpmdir}
+      %_builddir      %(%__mkdir_p %{__builddir})%{__builddir}
+      %_specdir       %(%__mkdir_p %{__specdir}  )%{__specdir}
+      %_sourcedir     %(%__mkdir_p %{__sourcedir})%{__sourcedir}
+      
+      %_rpmfilename   %%{NAME}-%%{VERSION}-%%{RELEASE}.%{?!noadddist:%{dis}%{tro}.}%%{ARCH}.rpm
+      EOF
+
+prereqs:
+  stage: prep
+  script:
+    - sudo -n yum install -y --nogpgcheck rpm-build strace yum-utils $extrapkgs
+    - xargs which <<< "yum-builddep $extrachecks"
+    - rpm --eval "%{_topdir}"
+    - rpm --eval "%{buildroot}"
+
+source:
+  stage: source
+  script:
+    - |
+      /usr/bin/rpmspec -P *.spec \
+      | awk -vIGNORECASE=1 '/^source/{print $2}' \
+      | xargs -n1 wget -c
+  artifacts:
+    paths:
+    - ./*gz
+
+SRPM:
+  stage: srpm
+  script:
+    - |
+      rpm --eval "%{_srcrpmdir}"  #strace -f -e trace=file \
+      rpmbuild -bs *.spec 
+  artifacts:
+    paths:
+    - SRPMS/*.src.rpm
+    - SRPMS/*.spec
+
+RPM:
+  stage: rpm
+  script:
+    - sudo -n yum-builddep -y SRPMS/*.src.rpm
+    - rpmbuild --rebuild SRPMS/*.src.rpm
+  artifacts:
+    paths:
+    - RPMS/*.rpm
+
