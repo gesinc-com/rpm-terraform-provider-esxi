@@ -5,7 +5,7 @@
 %global	dir	%{repo}-%{version}
 %global	namespace github.com/%{owner}/%{repo}
 
-%global	version	1.6.4
+%global	version	1.8.1
 %global	release	0.1
 
 # emulate mock bubblewrap dependency; delete with proper source
