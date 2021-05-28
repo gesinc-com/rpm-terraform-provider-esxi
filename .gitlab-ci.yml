@@ -67,7 +67,7 @@ SRPM:
   stage: srpm
   script:
     - |
-      rpm --eval "%{_srcrpmdir}"  #strace -f -e trace=file \
+      rpm --eval "%{_srcrpmdir}"
       rpmbuild -bs *.spec 
   artifacts:
     paths:
