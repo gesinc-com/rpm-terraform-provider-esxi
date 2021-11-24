@@ -5,7 +5,7 @@
 %global	dir	%{repo}-%{version}
 %global	namespace github.com/%{owner}/%{repo}
 
-%global	version	1.8.1
+%global	version	1.9.1
 %global	release	0.1
 
 # emulate mock bubblewrap dependency; delete with proper source
@@ -44,6 +44,7 @@ Terraform provider for vSphere
 
 %prep
 %setup -q -n %{dir}
+echo v%{version} > version
 
 %build
 export GOPATH=$PWD
