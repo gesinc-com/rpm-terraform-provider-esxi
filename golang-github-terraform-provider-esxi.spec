@@ -88,5 +88,5 @@ install -d -m 755 %{buildroot}%{_bindir}
 #
 #  $Log$
 %changelog
-Tue Dec 14 2021 bishopolis@gmail.com - 1.10.0-1
+* Tue Dec 14 2021 bishopolis@gmail.com - 1.10.0-1
 - upstream 1.10.0
