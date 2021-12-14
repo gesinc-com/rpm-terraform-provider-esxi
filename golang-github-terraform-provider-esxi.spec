@@ -6,7 +6,7 @@
 %global	namespace github.com/%{owner}/%{repo}
 
 %global	version	1.10.0
-%global	release	0.1
+%global	release	1
 
 # emulate mock bubblewrap dependency; delete with proper source
 %if %{?rhel:0}%{!?rhel:1}
@@ -84,7 +84,9 @@ install -d -m 755 %{buildroot}%{_bindir}
 %{_bindir}/*
 
 
-%changelog
 # %(date +"%a %b %d %Y") $Author: build $ %{version}-%{release}
 #
 #  $Log$
+%changelog
+Tue Dec 14 2021 bishopolis@gmail.com - 1.10.0-1
+- upstream 1.10.0
